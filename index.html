@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pour Rania - Une Lettre Animée</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Favicon cœur -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
+    <style>
+        /* Variables CSS pour une personnalisation facile */
+        :root {
+            /* Couleurs */
+            --color-bg: #FFF8F5;
+            --color-accent1: #FF6B8A;
+            --color-accent2: #4A3F35;
+            --color-blue: #4169E1;
+            --color-red: #FF4444;
+            --color-paper: #FFFEFC;
+            
+            /* Polices */
+            --font-heading: 'Sacramento', cursive;
+            --font-body: 'Inter', sans-serif;
+            
+            /* Personnalisation */
+            --recipient-name: 'Rania';
+            --sender-name: 'Zakaria';
+        }
+        
+        /* Reset et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-accent2);
+        }
+        
+        /* Conteneur principal */
+        .animation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: var(--color-bg);
+        }
+        
+        /* Message principal visible dès le début */
+        .main-message {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+            opacity: 1;
+            pointer-events: none;
+        }
+        
+        .main-text {
+            font-family: var(--font-heading);
+            color: var(--color-accent1);
+            font-size: 4rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(255, 107, 138, 0.3);
+        }
+        
+        .main-sender {
+            font-family: var(--font-body);
+            color: var(--color-accent2);
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+        
+        /* Enveloppe - position initiale en bas */
+        .envelope-container {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+            opacity: 1;
+        }
+        
+        .envelope-container:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+        
+        .envelope {
+            width: 100px;
+            height: 70px;
+            position: relative;
+            filter: drop-shadow(0 6px 12px rgba(74, 63, 53, 0.3));
+            transition: all 0.5s ease;
+        }
+        
+        .envelope-body {
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-paper);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(74, 63, 53, 0.1);
+        }
+        
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: var(--color-paper);
+            clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
+            transform-origin: top;
+            z-index: 2;
+            border: 1px solid rgba(74, 63, 53, 0.1);
+        }
+        
+        /* Animation d'ouverture de l'enveloppe */
+        .envelope.open .envelope-flap {
+            animation: envelope-open 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes envelope-open {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(-180deg); }
+        }
+        
+        /* Animation d'agrandissement */
+        .envelope-container.enlarged {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(2.5);
+            z-index: 20;
+        }
+        
+        .envelope-container.enlarged .envelope {
+            filter: drop-shadow(0 15px 30px rgba(74, 63, 53, 0.4));
+        }
+        
+        /* Lettre qui sort - NOUVELLE VERSION */
+        .full-letter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 300px;
+            height: 400px;
+            background-color: var(--color-paper);
+            border-radius: 8px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(74, 63, 53, 0.2);
+            z-index: 30;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* Contours bleu et rouge comme une lettre postale */
+            border: 3px solid var(--color-blue);
+            border-top: 15px solid var(--color-blue);
+            border-bottom: 15px solid var(--color-red);
+            border-left: 3px solid var(--color-blue);
+            border-right: 3px solid var(--color-blue);
+        }
+        
+        /* Animation d'apparition de la lettre complète */
+        .full-letter.revealed {
+            animation: letter-appear 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes letter-appear {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-10deg); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1.05) rotate(5deg); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+        
+        /* Texte de la lettre complète */
+        .letter-content {
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .letter-line {
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+            opacity: 0;
+        }
+        
+        .letter-line.recipient {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            color: var(--color-accent1);
+            margin-bottom: 25px;
+        }
+        
+        .letter-line.message {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            color: var(--color-accent2);
+            line-height: 1.4;
+        }
+        
+        .letter-line.sender {
+            font-family: var(--font-body);
+            font-size: 1.2rem;
+            color: var(--color-accent2);
+            margin-top: 30px;
+            font-weight: 300;
+        }
+        
+        /* Effet d'écriture manuscrite */
+        .handwriting {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .handwriting::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -2px;
+            width: 2px;
+            height: 100%;
+            background-color: var(--color-accent1);
+            animation: blink-cursor 0.8s infinite;
+        }
+        
+        @keyframes blink-cursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* Cœurs en fond (pluie de cœurs) */
+        .background-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .background-heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--color-accent1);
+            clip-path: path('M10 0L12 4L16 4L13 6L14 10L10 8L6 10L7 6L4 4L8 4Z');
+            opacity: 0;
+            filter: drop-shadow(0 2px 3px rgba(255, 107, 138, 0.3));
+        }
+        
+        /* Photo de Rania en arrière-plan subtil */
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/image/rania.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.08;
+            filter: blur(2px) sepia(20%);
+            z-index: 0;
+        }
+        
+        /* Adaptations responsive */
+        @media (min-width: 1200px) {
+            .main-text { font-size: 5rem; }
+            .main-sender { font-size: 1.8rem; }
+            .envelope { width: 120px; height: 80px; }
+            .full-letter { width: 350px; height: 450px; padding: 50px 35px; }
+            .letter-line.recipient { font-size: 3rem; margin-bottom: 30px; }
+            .letter-line.message { font-size: 2rem; }
+            .letter-line.sender { font-size: 1.4rem; margin-top: 35px; }
+        }
+        
+        @media (max-width: 1199px) and (min-width: 768px) {
+            .main-text { font-size: 4rem; }
+            .main-sender { font-size: 1.6rem; }
+            .envelope { width: 110px; height: 75px; }
+            .full-letter { width: 320px; height: 420px; padding: 45px 32px; }
+            .letter-line.recipient { font-size: 2.8rem; }
+            .letter-line.message { font-size: 1.8rem; }
+        }
+        
+        @media (max-width: 767px) {
+            .main-text { font-size: 3rem; }
+            .main-sender { font-size: 1.2rem; }
+            .envelope { width: 80px; height: 55px; }
+            .full-letter { 
+                width: 280px; 
+                height: 380px; 
+                padding: 35px 25px;
+                border-top: 12px solid var(--color-blue);
+                border-bottom: 12px solid var(--color-red);
+            }
+            .letter-line.recipient { font-size: 2.2rem; margin-bottom: 20px; }
+            .letter-line.message { font-size: 1.5rem; }
+            .letter-line.sender { font-size: 1rem; margin-top: 25px; }
+            .envelope-container.enlarged {
+                transform: translate(-50%, -50%) scale(2);
+            }
+        }
+        
+        /* Pour les préférences de mouvement réduit */
+        @media (prefers-reduced-motion: reduce) {
+            .background-heart,
+            .envelope-container,
+            .full-letter,
+            .letter-line {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            .handwriting::after {
+                animation: none;
+                opacity: 0;
+            }
+        }
+        
+        /* État initial - cacher les éléments */
+        .initial-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="animation-container">
+        <!-- Photo de Rania en arrière-plan très subtil -->
+        <div class="background-image"></div>
+        
+        <!-- Pluie de cœurs en arrière-plan -->
+        <div class="background-hearts" id="background-hearts"></div>
+        
+        <!-- Message principal -->
+        <div class="main-message" id="main-message">
+            <div class="main-text">Je t'aime, Rania.</div>
+            <div class="main-sender">— Zakaria</div>
+        </div>
+        
+        <!-- Enveloppe -->
+        <div class="envelope-container" id="envelope-container">
+            <div class="envelope" id="envelope">
+                <div class="envelope-body"></div>
+                <div class="envelope-flap"></div>
+            </div>
+        </div>
+        
+        <!-- Lettre complète qui va apparaître -->
+        <div class="full-letter initial-hidden" id="full-letter">
+            <div class="letter-content">
+                <div class="letter-line recipient handwriting" id="recipient-line">Rania,</div>
+                <div class="letter-line message" id="message-line-1">T ma lumière</div>
+                <div class="letter-line message" id="message-line-2">Chaque jour est merveilleux grâce à toi</div>
+                <div class="letter-line message" id="message-line-3">Je t'aime Rania</div>
+                <div class="letter-line sender" id="sender-line">— ton Zak</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let backgroundMusic = null;
+        let envelopeOpened = false;
+        
+        // Éléments DOM
+        const envelopeContainer = document.getElementById('envelope-container');
+        const envelope = document.getElementById('envelope');
+        const fullLetter = document.getElementById('full-letter');
+        const backgroundHearts = document.getElementById('background-hearts');
+        const recipientLine = document.getElementById('recipient-line');
+        const messageLine1 = document.getElementById('message-line-1');
+        const messageLine2 = document.getElementById('message-line-2');
+        const messageLine3 = document.getElementById('message-line-3');
+        const senderLine = document.getElementById('sender-line');
+        
+        // Initialiser la musique
+        function initMusic() {
+            backgroundMusic = new Audio('assets/audio/music.mp3');
+            backgroundMusic.loop = true;
+            backgroundMusic.volume = 0.3;
+            
+            // Essayer de jouer la musique automatiquement
+            const playPromise = backgroundMusic.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.log("L'autoplay de la musique a été bloqué, elle ne démarrera qu'après une interaction utilisateur");
+                    // La musique ne démarrera qu'après un clic
+                });
+            }
+        }
+        
+        // Créer la pluie de cœurs en fond
+        function createHeartRain() {
+            // Créer des cœurs qui tombent continuellement
+            function createHeart() {
+                const heart = document.createElement('div');
+                heart.className = 'background-heart';
+                
+                // Position aléatoire en haut
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.top = `-30px`;
+                
+                // Taille aléatoire
+                const size = 15 + Math.random() * 25;
+                heart.style.width = `${size}px`;
+                heart.style.height = `${size}px`;
+                
+                // Opacité aléatoire
+                const opacity = 0.2 + Math.random() * 0.5;
+                heart.style.opacity = opacity;
+                
+                // Couleur légèrement aléatoire
+                const hue = 340 + Math.random() * 20; // Entre rose et rouge
+                heart.style.backgroundColor = `hsl(${hue}, 100%, 65%)`;
+                
+                // Durée de chute aléatoire
+                const duration = 8 + Math.random() * 12;
+                
+                // Animation CSS
+                heart.style.animation = `
+                    heart-fall ${duration}s linear forwards
+                `;
+                
+                backgroundHearts.appendChild(heart);
+                
+                // Supprimer le cœur après l'animation
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                    }
+                }, duration * 1000);
+            }
+            
+            // Ajouter les keyframes pour la chute des cœurs
+            if (!document.querySelector('#heart-fall-keyframes')) {
+                const style = document.createElement('style');
+                style.id = 'heart-fall-keyframes';
+                style.textContent = `
+                    @keyframes heart-fall {
+                        0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+                        10% { opacity: 1; }
+                        90% { opacity: 0.8; }
+                        100% { opacity: 0; transform: translateY(110vh) rotate(${360 + Math.random() * 360}deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Créer un cœur toutes les 300ms
+            setInterval(createHeart, 300);
+            
+            // Créer quelques cœurs au départ
+            for (let i = 0; i < 20; i++) {
+                setTimeout(createHeart, Math.random() * 2000);
+            }
+        }
+        
+        // Ouvrir l'enveloppe
+        function openEnvelope() {
+            if (envelopeOpened) return;
+            envelopeOpened = true;
+            
+            // Démarrer la musique si elle n'est pas déjà en cours
+            if (backgroundMusic && backgroundMusic.paused) {
+                backgroundMusic.play().catch(e => {
+                    console.log("Impossible de démarrer la musique:", e);
+                });
+            }
+            
+            // Étape 1: Agrandir l'enveloppe
+            envelopeContainer.classList.add('enlarged');
+            
+            // Étape 2: Après l'agrandissement, ouvrir l'enveloppe
+            setTimeout(() => {
+                envelope.classList.add('open');
+                
+                // Étape 3: Révéler la lettre complète qui sort
+                setTimeout(() => {
+                    fullLetter.classList.remove('initial-hidden');
+                    fullLetter.classList.add('revealed');
+                    
+                    // Cacher l'enveloppe agrandie
+                    setTimeout(() => {
+                        envelopeContainer.style.opacity = '0';
+                    }, 500);
+                    
+                    // Étape 4: Animer le texte ligne par ligne
+                    setTimeout(() => {
+                        recipientLine.style.opacity = '1';
+                        recipientLine.style.transition = 'opacity 0.8s ease-out';
+                        recipientLine.classList.remove('handwriting');
+                        
+                        setTimeout(() => {
+                            messageLine1.style.opacity = '1';
+                            messageLine1.style.transition = 'opacity 0.8s ease-out';
+                            
+                            setTimeout(() => {
+                                messageLine2.style.opacity = '1';
+                                messageLine2.style.transition = 'opacity 0.8s ease-out';
+                                
+                                setTimeout(() => {
+                                    messageLine3.style.opacity = '1';
+                                    messageLine3.style.transition = 'opacity 0.8s ease-out';
+                                    senderLine.style.opacity = '1';
+                                    senderLine.style.transition = 'opacity 0.8s ease-out';
+                                }, 800);
+                            }, 800);
+                        }, 800);
+                    }, 1000);
+                }, 1200); // Après l'ouverture de l'enveloppe
+            }, 800); // Après l'agrandissement
+        }
+        
+        // Initialiser
+        function init() {
+            // Mettre à jour les textes avec les variables CSS
+            document.querySelector('.main-text').textContent = 
+                `Je t'aime, ${getComputedStyle(document.documentElement).getPropertyValue('--recipient-name').trim()}.`;
+            document.querySelector('.main-sender').textContent = 
+                `— ${getComputedStyle(document.documentElement).getPropertyValue('--sender-name').trim()}`;
+            
+            recipientLine.textContent = `${getComputedStyle(document.documentElement).getPropertyValue('--recipient-name').trim()},`;
+            senderLine.textContent = `— ${getComputedStyle(document.documentElement).getPropertyValue('--sender-name').trim()}`;
+            
+            // Initialiser la musique
+            initMusic();
+            
+            // Créer la pluie de cœurs
+            createHeartRain();
+            
+            // Gérer le clic sur l'enveloppe
+            envelopeContainer.addEventListener('click', openEnvelope);
+            
+            // Gérer le toucher sur mobile
+            envelopeContainer.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                openEnvelope();
+            }, { passive: false });
+            
+            // Accessibilité clavier
+            envelopeContainer.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openEnvelope();
+                }
+            });
+            
+            // Donner le focus à l'enveloppe pour l'accessibilité clavier
+            envelopeContainer.setAttribute('tabindex', '0');
+            envelopeContainer.setAttribute('role', 'button');
+            envelopeContainer.setAttribute('aria-label', 'Ouvrir la lettre d\'amour');
+        }
+        
+        // Démarrer lorsque la page est chargée
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
